@@ -1,10 +1,22 @@
 Reproducible Research Assignment 1
 ==================================
+## Loading and preprocessing the data
+### Show any code that is needed to
+
+### 1. Load the data (i.e. read.csv())
+### 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
 The code needed to load the data is
 ```{r}
 data<-read.csv("activity.csv")
 ```
+## What is mean total number of steps taken per day?
+
+### For this part of the assignment, you can ignore the missing values in the dataset.
+
+### 1. Make a histogram of the total number of steps taken each day
+### 2. Calculate and report the mean and median total number of steps taken per day
+
 The code needed to plot a histogram of the number of steps taken each day is
 ```{r}
 steps.tot.day<-as.matrix(by(data[,1],data[,2],sum))
@@ -17,11 +29,13 @@ The code needed to calculate the mean and median of the total number of steps ta
 steps.mean<-mean(steps.tot.day,na.rm=T)
 steps.median<-median(steps.tot.day,na.rm=T)
 ```
-This mean and median are
-```{r}
-steps.mean
-steps.median
-```
+This mean is `r steps.mean`, and this median is `r steps.median`.
+
+## What is the average daily activity pattern?
+
+### 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+### 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
 The code needed to plot the average number of steps taken vs. each 5 minute interval is
 ```{r}
 dirty<-is.na(data[,1])
@@ -37,20 +51,25 @@ The code needed to calculate the interval containing the maximum number of steps
 steps.tot.int<-(by(cdata[,1],cdata[,3],sum))
 steps.max.int<-unique(data[steps.tot.int%in%max(steps.tot.int),3])
 ```
-The interval containing the maximum nuber of steps is
-```{r}
-steps.max.int
-```
+The interval containing the maximum nuber of steps is `r steps.max.int`.
+
+## Imputing missing values
+
+### Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
+
+### 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+### 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+### 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+###  4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
 The code needed to calculate the number of missing values is
 ```{r}
 na.rows<-sum(dirty)
 ```
-The number of missing values is
-```{r}
-na.rows
-```
+The number of missing values is `r na.rows`.
+
 The code needed to replace the missing values with the mean of the same interval, rounded to the nearest whole number, is
-```{r}
+```{r, cache=TRUE}
 rdata<-data
 for (i in 1:nrow(rdata)) {
         if(is.na(rdata[i,1])==TRUE){
@@ -73,20 +92,17 @@ The code needed to calculate the mean and median of the total number of steps ta
 nona.steps.mean<-mean(nona.steps.tot.day,na.rm=T)
 nona.steps.median<-median(nona.steps.tot.day,na.rm=T)
 ```
-This mean and median are
-```{r}
-nona.steps.mean
-nona.steps.median
-```
-These measurements differ in that changing the data to change the NAs into the means of other measurements taken in a given interval on other days is
-```{r}
-steps.mean-nona.steps.mean
-steps.median-nona.steps.median
-```
-showing that the mean and median both drop when the the NAs are replaced with the means of hte given intervals as noted above.
+This mean is `r nona.steps.mean`, and this median is `r nona.steps.median`.  These measurements differ in that the mean decreases when using this cleaned data by `r steps.mean-nona.steps.mean`, and the median decreases by `r steps.median-nona.steps.median`.
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+### For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part
+
+### 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+### 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
 The code needed to calculate whether a date is part of the weekday or weekend, and then assign it to a new column in the data, is
-```{r}
+```{r,cache=TRUE}
 for (i in 1:nrow(rdata)) {
         if(weekdays(as.Date(rdata[i,2]))=="Monday"|
                 weekdays(as.Date(rdata[i,2]))=="Tuesday"|
@@ -102,7 +118,7 @@ for (i in 1:nrow(rdata)) {
 }
 ```
 The code needed to plot a histogram of the number of steps taken each day, when splitting the data into weekdays and weekends, is
-```{r}
+```{r,cache=TRUE}
 wdy<-subset(rdata,rdata[,4]=="weekday",select=steps&interval)[,c("steps",
         "interval")]
 wnd<-subset(rdata,rdata[,4]=="weekend",select=steps&interval)[,c("steps",
